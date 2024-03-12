@@ -66,8 +66,12 @@ namespace Managers
             Vector2 size = _gridSpriteRenderer == null ? _gridSpriteRenderer.bounds.size :
                 gridParent.GetComponent<SpriteRenderer>().bounds.size;
             Vector2 gridStartPos = new Vector2((gridPosition.x - size.x / 2f), gridPosition.y + size.y / 2f);
-            Vector2 localScale = dotPrefab.transform.localScale;
-            Vector2 gridDotOffset = new Vector2(localScale.x / 2f, localScale.y / 2f);
+            Vector2 localScale = dotPrefab.transform.lossyScale;
+            var parent = gridParent.parent;
+            Vector2 gridLocalScaleFactor = new Vector2(gridParent.localScale.x * parent.localScale.x,
+                gridParent.localScale.y * parent.localScale.y);
+            Vector2 gridDotHalfScale = new Vector2(localScale.x / 2f, localScale.y / 2f) * gridLocalScaleFactor;
+            
             
             for (int x = 0; x < GridX; x++)
             {
@@ -75,9 +79,10 @@ namespace Managers
                 {
                     gamePointPositionCounter++;
 
-                    float posX = gridDotOffset.x + gridStartPos.x + (x * gridSpacing);
-                    float posY = gridDotOffset.y + gridStartPos.y - (y * gridSpacing);
-                    _gridDotPositions.TryAdd(gamePointPositionCounter, new Vector2(posX, posY));
+                    float posX = gridDotHalfScale.x + (gridStartPos.x + (x * gridSpacing));
+                    float posY = -gridDotHalfScale.y + gridStartPos.y - (y * gridSpacing);
+                    Vector2 dotPosition = new Vector3(posX, posY);
+                    _gridDotPositions.TryAdd(gamePointPositionCounter, dotPosition);
                 }
             }
             CreateDotGameObjects();
@@ -100,6 +105,11 @@ namespace Managers
             
             _dotsGoList.Add(dot);
             GamePointsData.TryAdd(pos, value);
+        }
+
+        public void CreateLine()
+        {
+            
         }
     }
 }
