@@ -14,6 +14,9 @@ namespace Managers
         [SerializeField] private GameObject dotPrefab;
         [SerializeField] private Transform gridParent;
         [SerializeField] private float gridSpacing = 1.7f;
+        [SerializeField] private float dotScaleFactor = 1.0f;
+
+        private Vector2 localGridScaleFactor;
         
         public Action OnGridInitialized;
         public Dictionary<int, int> GamePointsData;
@@ -57,21 +60,26 @@ namespace Managers
             //Debug.Log(_gridDotPositions);
         }
 
+        private void GetGridScaleFactor()
+        {
+            var parent = gridParent.parent;
+            localGridScaleFactor = new Vector2(gridParent.localScale.x * parent.localScale.x,
+                gridParent.localScale.y * parent.localScale.y);
+        }
+
         //Create a 5x5 grid for the game dots
         private void CreateGrid()
         {
             int gamePointPositionCounter = 0;
             
+            GetGridScaleFactor();
             Vector2 gridPosition = gridParent.transform.position;
             Vector2 size = _gridSpriteRenderer == null ? _gridSpriteRenderer.bounds.size :
                 gridParent.GetComponent<SpriteRenderer>().bounds.size;
             Vector2 gridStartPos = new Vector2((gridPosition.x - size.x / 2f), gridPosition.y + size.y / 2f);
             Vector2 localScale = dotPrefab.transform.lossyScale;
-            var parent = gridParent.parent;
-            Vector2 gridLocalScaleFactor = new Vector2(gridParent.localScale.x * parent.localScale.x,
-                gridParent.localScale.y * parent.localScale.y);
-            Vector2 gridDotHalfScale = new Vector2(localScale.x / 2f, localScale.y / 2f) * gridLocalScaleFactor;
-            
+            Vector2 gridDotHalfScale = new Vector2(localScale.x / 2f, localScale.y / 2f) * localGridScaleFactor;
+            //gridSpacing = size.x
             
             for (int x = 0; x < GridX; x++)
             {
@@ -89,6 +97,11 @@ namespace Managers
             OnGridInitialized?.Invoke();
         }
 
+        public void UpdateGrid()
+        {
+            
+        }
+
         private void CreateDotGameObjects()
         {
             //TODO: Read values externally from a json/text file in format 2,4,8,16...
@@ -102,6 +115,7 @@ namespace Managers
         {
             Vector3 dotPosition = new Vector3(_gridDotPositions[pos].x, _gridDotPositions[pos].y, 1);
             var dot = Instantiate(dotPrefab, dotPosition, Quaternion.identity, gridParent);
+            dot.transform.localScale = new Vector2(dotScaleFactor, dotScaleFactor) / localGridScaleFactor;
             
             _dotsGoList.Add(dot);
             GamePointsData.TryAdd(pos, value);
