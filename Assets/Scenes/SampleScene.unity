@@ -363,9 +363,10 @@ Transform:
   m_GameObject: {fileID: 876575692}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.1, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.6, z: 0.75958}
+  m_LocalScale: {x: 0.888, y: 0.6, z: 0.75958}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2144659413}
   m_Father: {fileID: 1944776657}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -524,6 +525,7 @@ GameObject:
   - component: {fileID: 1900752707}
   - component: {fileID: 1900752708}
   - component: {fileID: 1900752709}
+  - component: {fileID: 1900752710}
   m_Layer: 0
   m_Name: GameplayManager
   m_TagString: Untagged
@@ -553,7 +555,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1900752706}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9dbfb6df10079c4e80249e3f433f1b8, type: 3}
   m_Name: 
@@ -561,7 +563,7 @@ MonoBehaviour:
   DestroyOnLoad: 1
   dotPrefab: {fileID: 1019555715210577526, guid: cddb9497dca7e4e4794091fb920b12c4, type: 3}
   gridParent: {fileID: 876575693}
-  gridSpacing: 1.5
+  dotScaleFactor: 1
 --- !u!114 &1900752709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -574,6 +576,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3384c39c70a2cf40a5651084cdd1334, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1900752710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900752706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c88ea6d7664b4f14fb281a6b42d9239c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  x_Start: 0
+  y_Start: 0
+  ColumnLength: 5
+  RowLength: 5
+  x_Space: 1
+  y_Space: 1
+  prefab: {fileID: 1019555715210577526, guid: cddb9497dca7e4e4794091fb920b12c4, type: 3}
+  gridParent: {fileID: 876575693}
+  startT: {fileID: 2144659413}
+  _gridSpriteRenderer: {fileID: 876575694}
 --- !u!1 &1944776655
 GameObject:
   m_ObjectHideFlags: 0
@@ -734,6 +758,37 @@ Transform:
   - {fileID: 1944776657}
   m_Father: {fileID: 0}
   m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2144659412
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2144659413}
+  m_Layer: 0
+  m_Name: GridStart
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2144659413
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2144659412}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.376, y: 0.3972, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 876575693}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &712701610934910044
 Transform:
