@@ -1,14 +1,19 @@
+using TMPro;
 using UnityEngine;
 
 namespace Dot
 {
     public class NumberDot : MonoBehaviour, INumberDot
     {
-        public int Value { get; set; }
-        
-        public NumberDot(float posX, float posY, int value)
+        private int _position;
+        private int _value;
+
+
+        [SerializeField] private TextMeshPro valueText;
+
+        public NumberDot(int value)
         {
-            Value = value;
+            SetValue(value);
         }
         
         public void OnInputEntered()
@@ -19,6 +24,33 @@ namespace Dot
         public void OnInputReleased()
         {
             
+        }
+        
+        public bool IsValueValid(int value)
+        {
+            return value >= 2 && value % 2 == 0;
+        }
+        
+        public void SetValue(int newValue)
+        {
+            if(!IsValueValid(newValue)) return;
+            _value = newValue;
+            valueText.text = _value.ToString();
+        }
+
+        public int GetValue()
+        {
+            return _value;
+        }
+
+        public int GetPosition()
+        {
+            return _position;
+        }
+
+        public void SetPosition(int newPosition)
+        {
+            _position = newPosition;
         }
     }
 }
