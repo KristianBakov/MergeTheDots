@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Data;
 using Dot;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -30,15 +31,16 @@ namespace Managers
             GamePointsData = new Dictionary<int, int>();
             _gridDotPositions = new Dictionary<int, Vector2>();
             _dotsList = new List<NumberDot>();
-            
+            GatherGridData();
             
         }
 
-        public void GatherGridData()
+        private void GatherGridData()
         {
             foreach (var dot in gridParent.GetComponentsInChildren<NumberDot>())
             {
                 dot.SetValue(GetRandomDotStartingValue());
+                Debug.Log(dot.name);
                 _dotsList.Add(dot);
             }
         }
@@ -62,6 +64,11 @@ namespace Managers
         private void InitializeFinished()
         {
             //Debug.Log(_gridDotPositions);
+        }
+        
+        private Color GetNumberValueColor(int value)
+        {
+            
         }
 
     }
