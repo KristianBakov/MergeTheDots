@@ -8,6 +8,9 @@ namespace Data
         private static DataConstants _instance;
         public static DataConstants Instance => _instance ??= new DataConstants();
         
+        public readonly int DefaultDotSpawnValue = 2;
+        public readonly List<int> DotStartingValues = new() {2, 4, 8};
+        
         public readonly List<Color> ColorGradient = new()
         {
             new Color(231, 103,145), //magenta pink
