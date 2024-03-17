@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -15,10 +16,15 @@ namespace Dot
         {
             SetValue(value);
         }
-        
+
+        private void OnMouseEnter()
+        {
+            //enlarge scale slightly on hover
+        }
+
         public void OnInputEntered()
         {
-            
+
         }
 
         public void OnInputReleased()

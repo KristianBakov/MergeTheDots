@@ -44,6 +44,7 @@ namespace Managers
             {
                 int value = GetNextDotValue();
                 dot.SetValue(value);
+                dot.gameObject.GetComponent<SpriteRenderer>().color = GetNumberValueColor(value);
 
                 _dotsList.Add(dot);
                 GamePointsData.Add(_dotsList.IndexOf(dot), value);

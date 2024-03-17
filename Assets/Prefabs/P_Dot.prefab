@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1019555715210577527}
   - component: {fileID: 1019555715210577528}
   - component: {fileID: 698155345906642272}
+  - component: {fileID: 890323877227539354}
   m_Layer: 0
   m_Name: P_Dot
   m_TagString: Untagged
@@ -99,6 +100,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueText: {fileID: 1019555715016047225}
+--- !u!58 &890323877227539354
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019555715210577526}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.50000006
 --- !u!1001 &8526042458784686212
 PrefabInstance:
   m_ObjectHideFlags: 0
