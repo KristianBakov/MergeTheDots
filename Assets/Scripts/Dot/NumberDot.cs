@@ -8,6 +8,7 @@ namespace Dot
     {
         private int _position;
         private int _value;
+        public Action OnDotInitialized; 
 
 
         [SerializeField] private TextMeshPro valueText;
@@ -15,6 +16,7 @@ namespace Dot
         public NumberDot(int value)
         {
             SetValue(value);
+            OnDotInitialized?.Invoke();
         }
 
         private void OnMouseEnter()

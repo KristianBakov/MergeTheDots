@@ -10,6 +10,7 @@ namespace Data
         
         public readonly int DefaultDotSpawnValue = 2;
         public readonly List<int> DotStartingValues = new() {2, 4, 8};
+        public readonly int GridSize = 5;
         
         public readonly List<Color> ColorGradient = new List<Color>
         {

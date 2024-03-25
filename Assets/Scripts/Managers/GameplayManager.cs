@@ -17,7 +17,7 @@ namespace Managers
         public Action OnGridInitialized;
         public Dictionary<int, int> GamePointsData;
         
-        private Dictionary<int, Vector2> _gridDotPositions;
+        private Dictionary<int, NumberDot> _gridDots;
         private List<NumberDot> _dotsList = new();
         
         private List<int> _possibleSpawnValues = new();
@@ -28,10 +28,14 @@ namespace Managers
             Initialize();
         }
 
+        private void Start()
+        {
+        }
+
         private void Initialize()
         {
             GamePointsData = new Dictionary<int, int>();
-            _gridDotPositions = new Dictionary<int, Vector2>();
+            _gridDots = new Dictionary<int, NumberDot>();
             _dotsList = new List<NumberDot>();
             _possibleSpawnValues.AddRange(DataConstants.Instance.DotStartingValues);
             GatherGridData();
@@ -48,9 +52,23 @@ namespace Managers
 
                 _dotsList.Add(dot);
                 GamePointsData.Add(_dotsList.IndexOf(dot), value);
-                _gridDotPositions.Add(_dotsList.IndexOf(dot), dot.transform.position);
+                _gridDots.Add(_dotsList.IndexOf(dot), dot);
             }
             OnGridInitialized?.Invoke();
+        }
+
+        private bool IsPositionBelowDotEmpty(int dotPosition)
+        {
+            if(dotPosition < 0 || dotPosition >= _dotsList.Count) return false;
+            Debug.Log("Is it empty" + (GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0).ToString());
+            return GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0;
+        }
+
+        private void PopDot(int dotPosition)
+        {
+            GamePointsData[dotPosition] = 0;
+            
+            //TODO: Play Effects and remove number dot
         }
 
         private int GetNextDotValue()
