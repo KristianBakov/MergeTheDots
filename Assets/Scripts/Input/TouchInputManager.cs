@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Utils;
@@ -12,11 +13,13 @@ namespace Input
         public event StartTouch OnStartTouch;
         public delegate void EndTouch(Vector2 position, float time);
         public event EndTouch OnEndTouch;
+        public Action OnStartTouchInput;
         #endregion
     
         private PlayerInputAction _playerInputAction;
         private Camera mainCamera;
 
+        public bool IsTouching { get; private set; }
         protected override void Awake()
         {
             base.Awake();
@@ -44,12 +47,15 @@ namespace Input
     
         private void StartTouchPrimary(InputAction.CallbackContext ctx)
         {
+            IsTouching = true;
+            OnStartTouchInput?.Invoke();
             OnStartTouch?.Invoke(Utilities.ScreenToWorld(mainCamera,
                 _playerInputAction.Touch.PrimaryPosition.ReadValue<Vector2>()), (float) ctx.startTime);
         }
     
         private void EndTouchPrimary(InputAction.CallbackContext ctx)
         {
+            IsTouching = false;
             OnEndTouch?.Invoke(Utilities.ScreenToWorld(mainCamera,
                 _playerInputAction.Touch.PrimaryPosition.ReadValue<Vector2>()), (float) ctx.time);
         }

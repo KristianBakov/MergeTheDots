@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -8,7 +9,10 @@ namespace Dot
     {
         private int _position;
         private int _value;
-        public Action OnDotInitialized; 
+        public Action OnDotInitialized;
+        [SerializeField] public float ScaleFactor = 0.2f;
+
+        private bool _isHighlighted = false;
 
 
         [SerializeField] private TextMeshPro valueText;
@@ -17,6 +21,32 @@ namespace Dot
         {
             SetValue(value);
             OnDotInitialized?.Invoke();
+        }
+        
+        //called whenevver input highlights the dot
+        public void HighlightDot(bool isHighlighted)
+        {
+            //TODO: Clamp scale factor 
+            //highlight dot
+            //_isHighlighted = !_isHighlighted;
+            var localScale = transform.localScale;
+            Vector2 newScale = isHighlighted ? new Vector3(localScale.x + ScaleFactor,
+                localScale.y + ScaleFactor, 1) : transform.localScale;
+            //lerp to new scale
+            StartCoroutine(LerpToNewScale(newScale));
+        }
+
+        private IEnumerator LerpToNewScale(Vector2 newScale)
+        {
+            float elapsedTime = 0;
+            float duration = 0.3f;
+            Vector2 initialScale = transform.localScale;
+            while (elapsedTime < duration)
+            {
+                transform.localScale = Vector2.Lerp(initialScale, newScale, elapsedTime / duration);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
         }
 
         private void OnMouseEnter()

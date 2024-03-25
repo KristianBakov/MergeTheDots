@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Data;
 using Dot;
+using Input;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Utils;
@@ -19,12 +21,15 @@ namespace Managers
         
         private Dictionary<int, NumberDot> _gridDots;
         private List<NumberDot> _dotsList = new();
+        private List<NumberDot> _highlightedDots = new();
         
         private List<int> _possibleSpawnValues = new();
+        private TouchInputManager _touchInputManager;
 
         protected override void Awake()
         {
             base.Awake();
+            _touchInputManager = TouchInputManager.Instance;
             Initialize();
         }
 
@@ -63,6 +68,20 @@ namespace Managers
             Debug.Log("Is it empty" + (GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0).ToString());
             return GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0;
         }
+        
+        //called recursively to move the dot to the bottom of the grid
+        private void MoveDotToNextAvailableColumn(int dotPosition)
+        {
+            if (dotPosition < 0 || dotPosition >= _dotsList.Count) return;
+            if (IsPositionBelowDotEmpty(dotPosition))
+            {
+                int nextPosition = dotPosition + DataConstants.Instance.GridSize;
+                GamePointsData[nextPosition] = GamePointsData[dotPosition];
+                GamePointsData[dotPosition] = 0;
+                _gridDots[nextPosition].SetValue(GamePointsData[nextPosition]);
+                _gridDots[dotPosition].SetValue(GamePointsData[dotPosition]);
+            }
+        }
 
         private void PopDot(int dotPosition)
         {
@@ -83,14 +102,63 @@ namespace Managers
             return _possibleSpawnValues[randomIndex];
         }
 
+        private void RespondToTouchInput()
+        {
+            Debug.Log("Swipe detected. responding here");
+            //check if the touch pos is inside a dot collision box
+            
+            if(_touchInputManager.IsTouching)
+            {
+                StartCoroutine(nameof(HighlightSwipedDots));
+                    // NumberDot dot = hit.collider.GetComponent<NumberDot>();
+                    // if (dot != null)
+                    // {
+                    //     Debug.Log("Dot found");
+                    //     //check if the dot can be moved
+                    //     if (IsPositionBelowDotEmpty(dot.GetPosition()))
+                    //     {
+                    //         MoveDotToNextAvailableColumn(dot.GetPosition());
+                    //     }
+                    //     else
+                    //     {
+                    //         PopDot(dot.GetPosition());
+                    //     }
+                    // }
+            }
+        }
+
+        private IEnumerator HighlightSwipedDots()
+        {
+            _highlightedDots.Clear();
+            while (_touchInputManager.IsTouching)
+            {
+                Vector2 touchPos = _touchInputManager.GetPrimaryPosition();
+                RaycastHit2D hit = Physics2D.Raycast(touchPos, Vector2.zero);
+                if (hit.collider != null)
+                {
+                    Debug.Log(hit.collider.name);
+                    
+                    //adding the dot to the list of highlighted dots
+                    NumberDot dot = hit.collider.GetComponent<NumberDot>();
+                    _highlightedDots.Add(dot);
+                    
+                    //highlight the dot
+                    dot.HighlightDot(_touchInputManager.IsTouching);
+                }
+                yield return null;
+            }
+        }
+
         private void OnEnable()
         {
             OnGridInitialized += InitializeFinished;
+            _touchInputManager.OnStartTouchInput += RespondToTouchInput;
         }
 
         private void OnDisable()
         {
             OnGridInitialized -= InitializeFinished;
+            _touchInputManager.OnStartTouchInput -= RespondToTouchInput;
         }
 
         private void InitializeFinished()

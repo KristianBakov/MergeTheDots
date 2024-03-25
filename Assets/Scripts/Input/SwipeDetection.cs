@@ -50,11 +50,24 @@ namespace Input
                _endTime - _startTime <= maximumTime)
             {
                 Debug.DrawLine(_startPosition, _endPosition, Color.red, 5);
-                Debug.Log("Swipe detected");
-                Vector3 direction = _endPosition - _startPosition;
-                Vector2 direction2D = new Vector2(direction.x, direction.y).normalized;
-                SwipeDirection(direction2D);
             }
+        }
+
+        private void DetectSwipeDirection()
+        {
+            Vector3 direction = _endPosition - _startPosition;
+            Vector2 direction2D = new Vector2(direction.x, direction.y).normalized;
+            SwipeDirection(direction2D);
+        }
+
+        public Vector2 GetTouchPosition()
+        {
+            return _touchInputManager.GetPrimaryPosition();
+        }
+
+        public Vector2 GetSwipeStartPosition()
+        {
+            return _startPosition;
         }
 
         private void SwipeDirection(Vector2 direction)
