@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Utils;
 
-public class TouchInputHandler : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+public class TouchInputHandler : MonoSingleton<TouchInputHandler>, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
     private Vector2 _startPosition;
     private Vector2 _endPosition;
