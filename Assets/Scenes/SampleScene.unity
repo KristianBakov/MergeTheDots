@@ -2463,6 +2463,7 @@ GameObject:
   - component: {fileID: 1900752707}
   - component: {fileID: 1900752709}
   - component: {fileID: 1900752710}
+  - component: {fileID: 1900752711}
   m_Layer: 0
   m_Name: GameplayManager
   m_TagString: Untagged
@@ -2497,6 +2498,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3384c39c70a2cf40a5651084cdd1334, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DestroyOnLoad: 1
 --- !u!114 &1900752710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2512,6 +2514,20 @@ MonoBehaviour:
   DestroyOnLoad: 1
   dotPrefab: {fileID: 1019555715210577526, guid: cddb9497dca7e4e4794091fb920b12c4, type: 3}
   gridParent: {fileID: 876575697}
+--- !u!114 &1900752711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900752706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e145e6cd0519aae448104a6fa7252b27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minimumDistance: 0
+  maximumTime: 1
 --- !u!1 &1944776655
 GameObject:
   m_ObjectHideFlags: 0
@@ -2572,7 +2588,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -999
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.9411765, g: 0.89411765, b: 0.7921569, a: 1}
+  m_Color: {r: 0.9411765, g: 0.89411765, b: 0.7921569, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
