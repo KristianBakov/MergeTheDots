@@ -77,9 +77,9 @@ namespace Managers
             {
                 int nextPosition = dotPosition + DataConstants.Instance.GridSize;
                 GamePointsData[nextPosition] = GamePointsData[dotPosition];
-                GamePointsData[dotPosition] = 0;
-                _gridDots[nextPosition].SetValue(GamePointsData[nextPosition]);
-                _gridDots[dotPosition].SetValue(GamePointsData[dotPosition]);
+                //GamePointsData[dotPosition] = 0;
+                //_gridDots[nextPosition].SetValue(GamePointsData[nextPosition]);
+                //_gridDots[dotPosition].SetValue(GamePointsData[dotPosition]);
             }
         }
 
