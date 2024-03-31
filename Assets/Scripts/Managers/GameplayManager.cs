@@ -108,20 +108,6 @@ namespace Managers
             if(_touchInputManager.IsTouching)
             {
                 StartCoroutine(nameof(HighlightSwipedDots));
-                    // NumberDot dot = hit.collider.GetComponent<NumberDot>();
-                    // if (dot != null)
-                    // {
-                    //     Debug.Log("Dot found");
-                    //     //check if the dot can be moved
-                    //     if (IsPositionBelowDotEmpty(dot.GetPosition()))
-                    //     {
-                    //         MoveDotToNextAvailableColumn(dot.GetPosition());
-                    //     }
-                    //     else
-                    //     {
-                    //         PopDot(dot.GetPosition());
-                    //     }
-                    // }
             }
         }
 
