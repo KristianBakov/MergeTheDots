@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Input;
 using TMPro;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace Dot
         private int _position;
         private int _value;
         public Action OnDotInitialized;
+        public Action<int> OnDotReceivedInput;
         [SerializeField] public float ScaleFactor = 0.2f;
 
         private Vector2 originalScale;
@@ -29,12 +31,20 @@ namespace Dot
             originalScale = transform.localScale;
         }
 
+        private void OnEnable()
+        {
+            TouchInputManager.Instance.OnEndTouchInput += OnInputReleased;
+        }
+
+        private void OnDisable()
+        {
+            TouchInputManager.Instance.OnEndTouchInput -= OnInputReleased;
+        }
+
         //called whenevver input highlights the dot
         public void HighlightDot(bool isHighlighted)
         {
-            // Decide on the new scale based on whether the dot is highlighted or not
             Vector2 newScale = isHighlighted ? new Vector2(originalScale.x + ScaleFactor, originalScale.y + ScaleFactor) : originalScale;
-            // Start the coroutine to lerp to the new scale
             StartCoroutine(LerpToNewScale(newScale));
         }
 
@@ -49,13 +59,20 @@ namespace Dot
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            // Ensure the final scale is set accurately after the lerp
+
             transform.localScale = newScale;
         }
 
         private void OnMouseEnter()
         {
             //enlarge scale slightly on hover
+
+        }
+
+        private void OnMouseExit()
+        {
+            if(TouchInputManager.Instance.IsTouching) return;
+            OnInputReleased();
         }
 
         public void OnInputEntered()
@@ -65,7 +82,7 @@ namespace Dot
 
         public void OnInputReleased()
         {
-            
+            HighlightDot(false);
         }
         
         public bool IsValueValid(int value)

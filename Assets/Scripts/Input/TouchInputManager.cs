@@ -51,6 +51,7 @@ namespace Input
         private void EndTouchPrimary(InputAction.CallbackContext ctx)
         {
             IsTouching = false;
+            OnEndTouchInput?.Invoke();
         }
 
         public Vector2 GetPrimaryPosition()

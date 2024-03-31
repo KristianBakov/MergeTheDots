@@ -25,6 +25,9 @@ namespace Managers
         
         private List<int> _possibleSpawnValues = new();
         private TouchInputManager _touchInputManager;
+        
+        [FormerlySerializedAs("CurrentDotValue")] public int CurrentDotPosition = 0;
+        [FormerlySerializedAs("PreviousDotValue")] public int PreviousDotPosition = 0;
 
         protected override void Awake()
         {
@@ -102,15 +105,12 @@ namespace Managers
 
         private void RespondToTouchInput()
         {
-            Debug.Log("Swipe detected. responding here");
-            //check if the touch pos is inside a dot collision box
-            
-            if(_touchInputManager.IsTouching)
+            if (_touchInputManager.IsTouching)
             {
                 StartCoroutine(nameof(HighlightSwipedDots));
             }
         }
-
+        
         private IEnumerator HighlightSwipedDots()
         {
             _highlightedDots.Clear();
@@ -120,29 +120,62 @@ namespace Managers
                 RaycastHit2D hit = Physics2D.Raycast(touchPos, Vector2.zero);
                 if (hit.collider != null)
                 {
-                    Debug.Log(hit.collider.name);
+                    //Debug.Log(hit.collider.name);
                     
                     //adding the dot to the list of highlighted dots
                     NumberDot dot = hit.collider.GetComponent<NumberDot>();
+                    
+                    PreviousDotPosition = CurrentDotPosition;
+                    CurrentDotPosition = dot.GetPosition();
+                    
                     _highlightedDots.Add(dot);
                     
-                    //highlight the dot
-                    dot.HighlightDot(_touchInputManager.IsTouching);
+                    Debug.Log("Current Dot Position: " + CurrentDotPosition);
+                    Debug.Log("Previous Dot Position: " + PreviousDotPosition);
+                    
+                    //highlight the dot if the list has only one element or their position is adjacent
+                    if (_highlightedDots.Count == 1 || CheckDotIsNeighbour(PreviousDotPosition, CurrentDotPosition))
+                    {
+                        dot.HighlightDot(_touchInputManager.IsTouching);
+                    }
+
                 }
                 yield return null;
             }
         }
 
+        public bool CheckDotIsNeighbour(int originalDotPos, int neighbourDotPos)
+        {
+            bool isNeighbour = originalDotPos - DataConstants.Instance.GridSize == neighbourDotPos ||
+                               originalDotPos + DataConstants.Instance.GridSize == neighbourDotPos ||
+                               originalDotPos - 1 == neighbourDotPos ||
+                               originalDotPos + 1 == neighbourDotPos ||
+                               originalDotPos - DataConstants.Instance.GridSize - 1 == neighbourDotPos ||
+                               originalDotPos - DataConstants.Instance.GridSize + 1 == neighbourDotPos ||
+                               originalDotPos + DataConstants.Instance.GridSize - 1 == neighbourDotPos ||
+                               originalDotPos + DataConstants.Instance.GridSize + 1 == neighbourDotPos;
+            
+            //check onthe grid up, left right, down and diagonals
+            return isNeighbour;
+        }
+
+        private void TouchInputEnded()
+        { 
+            //Debug.Log("Touch input ended");
+        }
+        
         private void OnEnable()
         {
             OnGridInitialized += InitializeFinished;
             _touchInputManager.OnStartTouchInput += RespondToTouchInput;
+            _touchInputManager.OnEndTouchInput += TouchInputEnded;
         }
 
         private void OnDisable()
         {
             OnGridInitialized -= InitializeFinished;
             _touchInputManager.OnStartTouchInput -= RespondToTouchInput;
+            _touchInputManager.OnEndTouchInput -= TouchInputEnded;
         }
 
         private void InitializeFinished()
