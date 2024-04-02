@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Data;
 using Dot;
 using Input;
@@ -26,8 +27,10 @@ namespace Managers
         private List<int> _possibleSpawnValues = new();
         private TouchInputManager _touchInputManager;
         
-        [FormerlySerializedAs("CurrentDotValue")] public int CurrentDotPosition = 0;
-        [FormerlySerializedAs("PreviousDotValue")] public int PreviousDotPosition = 0;
+        private int _currentDotPosition;
+        private int _currentDotValue;
+        private int _previousDotPosition;
+        private int _previousDotValue;
 
         protected override void Awake()
         {
@@ -52,15 +55,18 @@ namespace Managers
 
         private void GatherGridData()
         {
-            foreach (var dot in gridParent.GetComponentsInChildren<NumberDot>())
+            List<NumberDot> dots = gridParent.GetComponentsInChildren<NumberDot>().ToList();
+            for (int i = 0; i < dots.Count; i++)
             {
+                NumberDot currentDot = dots[i];
                 int value = GetNextDotValue();
-                dot.SetValue(value);
-                dot.gameObject.GetComponent<SpriteRenderer>().color = GetNumberValueColor(value);
+                currentDot.SetValue(value);
+                currentDot.gameObject.GetComponent<SpriteRenderer>().color = GetNumberValueColor(value);
+                currentDot.SetPosition(i);
 
-                _dotsList.Add(dot);
-                GamePointsData.Add(_dotsList.IndexOf(dot), value);
-                _gridDots.Add(_dotsList.IndexOf(dot), dot);
+                _dotsList.Add(dots[i]);
+                GamePointsData.Add(_dotsList.IndexOf(currentDot), value);
+                _gridDots.Add(_dotsList.IndexOf(currentDot), currentDot);
             }
             OnGridInitialized?.Invoke();
         }
@@ -120,43 +126,46 @@ namespace Managers
                 RaycastHit2D hit = Physics2D.Raycast(touchPos, Vector2.zero);
                 if (hit.collider != null)
                 {
-                    //Debug.Log(hit.collider.name);
-                    
-                    //adding the dot to the list of highlighted dots
                     NumberDot dot = hit.collider.GetComponent<NumberDot>();
-                    
-                    PreviousDotPosition = CurrentDotPosition;
-                    CurrentDotPosition = dot.GetPosition();
-                    
-                    _highlightedDots.Add(dot);
-                    
-                    Debug.Log("Current Dot Position: " + CurrentDotPosition);
-                    Debug.Log("Previous Dot Position: " + PreviousDotPosition);
+
+
+                    _currentDotPosition = dot.GetPosition();
+                    _currentDotValue = dot.GetValue();
+
+
                     
                     //highlight the dot if the list has only one element or their position is adjacent
-                    if (_highlightedDots.Count == 1 || CheckDotIsNeighbour(PreviousDotPosition, CurrentDotPosition))
+                    if (_highlightedDots.Count == 0 || HasValidNeighbour(_currentDotValue, _previousDotValue))
                     {
-                        dot.HighlightDot(_touchInputManager.IsTouching);
+                        Debug.Log(_highlightedDots);
+                        if (_highlightedDots.Count > 1 && dot == _highlightedDots[_highlightedDots.Count - 2])
+                        {
+                            // backtracking to the second-last dot
+                            _highlightedDots.Last().HighlightDot(false);
+                            _highlightedDots.RemoveAt(_highlightedDots.Count - 1);
+                            
+                            _previousDotPosition = _highlightedDots.Last().GetPosition();
+                            _previousDotValue = _highlightedDots.Last().GetValue();
+                            yield return null;
+                        }
+                        else if (!_highlightedDots.Contains(dot))
+                        {
+                            // Normal forward highlighting logic here
+                            dot.HighlightDot(_touchInputManager.IsTouching);
+                            _highlightedDots.Add(dot);
+                            _previousDotPosition = _currentDotPosition;
+                            _previousDotValue = _currentDotValue;
+                        }
                     }
-
                 }
                 yield return null;
             }
         }
 
-        public bool CheckDotIsNeighbour(int originalDotPos, int neighbourDotPos)
+        private bool HasValidNeighbour(int currentDotValue, int previousDotValue)
         {
-            bool isNeighbour = originalDotPos - DataConstants.Instance.GridSize == neighbourDotPos ||
-                               originalDotPos + DataConstants.Instance.GridSize == neighbourDotPos ||
-                               originalDotPos - 1 == neighbourDotPos ||
-                               originalDotPos + 1 == neighbourDotPos ||
-                               originalDotPos - DataConstants.Instance.GridSize - 1 == neighbourDotPos ||
-                               originalDotPos - DataConstants.Instance.GridSize + 1 == neighbourDotPos ||
-                               originalDotPos + DataConstants.Instance.GridSize - 1 == neighbourDotPos ||
-                               originalDotPos + DataConstants.Instance.GridSize + 1 == neighbourDotPos;
-            
-            //check onthe grid up, left right, down and diagonals
-            return isNeighbour;
+            return currentDotValue == previousDotValue &&
+                   GridUtils.CheckDotIsNeighbour(_currentDotPosition, _previousDotPosition);
         }
 
         private void TouchInputEnded()
