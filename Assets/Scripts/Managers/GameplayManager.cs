@@ -16,12 +16,13 @@ namespace Managers
     {
         [SerializeField] private GameObject dotPrefab;
         [SerializeField] private Transform gridParent;
+        [SerializeField] public float DotMoveDuration = 0.2f;
         
         public Action OnGridInitialized;
         public Dictionary<int, int> GamePointsData;
         
         private Dictionary<int, NumberDot> _gridDots;
-        private List<NumberDot> _dotsList = new();
+        private readonly Dictionary<int, Vector2> _dotPositions = new();
         private List<NumberDot> _highlightedDots = new();
         
         private List<int> _possibleSpawnValues = new();
@@ -38,16 +39,12 @@ namespace Managers
             _touchInputManager = TouchInputManager.Instance;
             Initialize();
         }
-
-        private void Start()
-        {
-        }
+        
 
         private void Initialize()
         {
             GamePointsData = new Dictionary<int, int>();
             _gridDots = new Dictionary<int, NumberDot>();
-            _dotsList = new List<NumberDot>();
             _possibleSpawnValues.AddRange(DataConstants.Instance.DotStartingValues);
             GatherGridData();
             
@@ -63,38 +60,72 @@ namespace Managers
                 currentDot.SetValue(value);
                 currentDot.SetColor(GetNumberValueColor(value));
                 currentDot.SetPosition(i);
-
-                _dotsList.Add(dots[i]);
-                GamePointsData.Add(_dotsList.IndexOf(currentDot), value);
-                _gridDots.Add(_dotsList.IndexOf(currentDot), currentDot);
+                
+                GamePointsData.Add(i, value);
+                _gridDots.Add(i, currentDot);
+                _dotPositions.Add(i, currentDot.transform.position);
             }
             OnGridInitialized?.Invoke();
         }
 
-        private bool IsPositionBelowDotEmpty(int dotPosition)
-        {
-            if(dotPosition < 0 || dotPosition >= _dotsList.Count) return false;
-            Debug.Log("Is it empty" + (GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0).ToString());
-            return GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0;
-        }
-        
-        //called recursively to move the dot to the bottom of the grid
-        private void MoveDotToNextAvailableColumn(int dotPosition)
-        {
-            if (dotPosition < 0 || dotPosition >= _dotsList.Count) return;
-            if (IsPositionBelowDotEmpty(dotPosition))
-            {
-                int nextPosition = dotPosition + DataConstants.Instance.GridSize;
-                GamePointsData[nextPosition] = GamePointsData[dotPosition];
+        // private bool IsPositionBelowDotEmpty(int dotPosition)
+        // {
+        //     if(dotPosition < 0 || dotPosition >= _dotsList.Count) return false;
+        //     Debug.Log("Is it empty" + (GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0).ToString());
+        //     return GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0;
+        // }
+        //
+        // //called recursively to move the dot to the bottom of the grid
+        // private void MoveDotToNextAvailableSlot(int dotPosition)
+        // {
+        //     if (dotPosition < 0 || dotPosition >= _dotsList.Count) return;
+        //     if (IsPositionBelowDotEmpty(dotPosition))
+        //     {
+        //         int nextPosition = dotPosition + DataConstants.Instance.GridSize;
+        //         GamePointsData[nextPosition] = GamePointsData[dotPosition];
+        //
+        //     }
+        //}
 
-            }
+        public void SpawnDotAtPosition(int position)
+        {
+            if(_gridDots.ContainsKey(position)) return;
+            
+            Vector2 dotSpawnWorldPosition = _dotPositions[position];
+            GameObject newDot = Instantiate(dotPrefab, dotSpawnWorldPosition, Quaternion.identity, gridParent);
+            NumberDot newDotComponent = newDot.GetComponent<NumberDot>();
+            int value = GetNextDotValue();
+            newDotComponent.SetValue(value);
+            newDotComponent.SetColor(GetNumberValueColor(value));
+            newDotComponent.SetPosition(position);
+            _gridDots.Add(position, newDotComponent);
+            
+            //GamePointsData.Add(position, value);
         }
 
         private void PopDot(int dotPosition)
         {
-            GamePointsData[dotPosition] = 0;
+            //GamePointsData[dotPosition] = 0;
             
-            //TODO: Play Effects and remove number dot
+            //whatever dot is on top falls down, whatever is left empty above that just spawns in a new dot
+            
+            if(dotPosition > DataConstants.Instance.GridSize)
+            {
+                //first row, just spawn in
+                Destroy(_gridDots[dotPosition].gameObject);
+                _gridDots.Remove(dotPosition);
+                SpawnDotAtPosition(dotPosition);
+                return;
+            }
+            
+            
+            //check is any dot(s) above it
+            
+            //if there is a dot above it, move it down
+            
+            //if there is no dot above it, but there is empty space, spawn a new dot
+            
+
         }
 
         private int GetNextDotValue()
@@ -116,6 +147,28 @@ namespace Managers
                 StartCoroutine(nameof(HighlightSwipedDots));
             }
         }
+
+        public void MoveDotToPosition(int dotPosition, int newDotPosition)
+        {
+            //lerp the dot to the new position
+            StartCoroutine(MoveDotRoutine(dotPosition, newDotPosition));
+        }
+        
+        private IEnumerator MoveDotRoutine(int dotPosition, int newDotPosition)
+        {
+            float elapsedTime = 0;
+            Vector2 initialPosition = _gridDots[dotPosition].transform.position;
+            Vector2 targetPosition = _gridDots[newDotPosition].transform.position;
+            while (elapsedTime < DotMoveDuration)
+            {
+                _gridDots[dotPosition].transform.position = Vector2.Lerp(initialPosition, targetPosition, elapsedTime / DotMoveDuration);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            _gridDots[dotPosition].transform.position = targetPosition;
+            PopDot(dotPosition);
+        }
+        
         
         private IEnumerator HighlightSwipedDots()
         {
@@ -165,6 +218,11 @@ namespace Managers
             }
         }
 
+        public bool CheckForMatch()
+        {
+            return _highlightedDots.Count > 1;
+        }
+
         private bool HasValidNeighbour(int currentDotValue, int previousDotValue)
         {
             return currentDotValue == previousDotValue &&
@@ -174,6 +232,15 @@ namespace Managers
         private void TouchInputEnded()
         { 
             LineDrawer.Instance.ClearAllLines();
+            if (CheckForMatch())
+            {
+                //match found
+                Debug.Log("Match Found");
+                for (int i = 0; i < _highlightedDots.Count - 1; i++)
+                {
+                    MoveDotToPosition(_highlightedDots[i].GetPosition(), _highlightedDots.Last().GetPosition());
+                }
+            }
         }
         
         private void OnEnable()
