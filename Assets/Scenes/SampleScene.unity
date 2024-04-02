@@ -2089,67 +2089,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1019555715210577527, guid: cddb9497dca7e4e4794091fb920b12c4, type: 3}
   m_PrefabInstance: {fileID: 1507710190}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1492509941
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1492509943}
-  - component: {fileID: 1492509942}
-  - component: {fileID: 1492509944}
-  m_Layer: 5
-  m_Name: UIDocument
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1492509942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1492509941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PanelSettings: {fileID: 11400000, guid: 00f9e65679f13a849aad172a59465e99, type: 2}
-  m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: bf826ef72f3d0474c98400cab3793628, type: 3}
-  m_SortingOrder: 0
---- !u!4 &1492509943
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1492509941}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1492509944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1492509941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c613258b5b7c6a34f9cbbb3f43052f46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1504679595 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1019555715210577527, guid: cddb9497dca7e4e4794091fb920b12c4, type: 3}
@@ -2513,8 +2452,6 @@ MonoBehaviour:
   DestroyOnLoad: 1
   dotPrefab: {fileID: 1019555715210577526, guid: cddb9497dca7e4e4794091fb920b12c4, type: 3}
   gridParent: {fileID: 876575697}
-  CurrentDotPosition: 0
-  PreviousDotPosition: 0
 --- !u!1 &1944776655
 GameObject:
   m_ObjectHideFlags: 0
