@@ -10,12 +10,14 @@ namespace Dot
     {
         private int _position;
         private int _value;
+        private Color _color;
         public Action OnDotInitialized;
         public Action<int> OnDotReceivedInput;
         [SerializeField] public float ScaleFactor = 0.2f;
 
         private Vector2 originalScale;
         private bool _isHighlighted = false;
+        private SpriteRenderer _spriteRenderer;
 
 
         [SerializeField] private TextMeshPro valueText;
@@ -28,6 +30,7 @@ namespace Dot
 
         private void Awake()
         {
+            _spriteRenderer = GetComponent<SpriteRenderer>();
             originalScale = transform.localScale;
         }
 
@@ -105,6 +108,17 @@ namespace Dot
         public int GetPosition()
         {
             return _position;
+        }
+        
+        public void SetColor(Color newColor)
+        {
+            _color = newColor;
+            _spriteRenderer.color = _color;
+        }
+
+        public Color GetColor()
+        {
+            return _color;
         }
 
         public void SetPosition(int newPosition)

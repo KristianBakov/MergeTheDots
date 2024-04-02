@@ -61,7 +61,7 @@ namespace Managers
                 NumberDot currentDot = dots[i];
                 int value = GetNextDotValue();
                 currentDot.SetValue(value);
-                currentDot.gameObject.GetComponent<SpriteRenderer>().color = GetNumberValueColor(value);
+                currentDot.SetColor(GetNumberValueColor(value));
                 currentDot.SetPosition(i);
 
                 _dotsList.Add(dots[i]);
@@ -131,13 +131,10 @@ namespace Managers
 
                     _currentDotPosition = dot.GetPosition();
                     _currentDotValue = dot.GetValue();
-
-
                     
                     //highlight the dot if the list has only one element or their position is adjacent
                     if (_highlightedDots.Count == 0 || HasValidNeighbour(_currentDotValue, _previousDotValue))
                     {
-                        Debug.Log(_highlightedDots);
                         if (_highlightedDots.Count > 1 && dot == _highlightedDots[_highlightedDots.Count - 2])
                         {
                             // backtracking to the second-last dot
@@ -153,6 +150,12 @@ namespace Managers
                             // Normal forward highlighting logic here
                             dot.HighlightDot(_touchInputManager.IsTouching);
                             _highlightedDots.Add(dot);
+                            if (_highlightedDots.Count > 1)
+                            {
+                                LineDrawer.Instance.DrawLineFromPoints(_gridDots[_previousDotPosition].transform.position,
+                                    _gridDots[_currentDotPosition].transform.position, 0.1f, _gridDots[_currentDotPosition].GetColor());   
+                            }
+                            
                             _previousDotPosition = _currentDotPosition;
                             _previousDotValue = _currentDotValue;
                         }
@@ -170,7 +173,7 @@ namespace Managers
 
         private void TouchInputEnded()
         { 
-            //Debug.Log("Touch input ended");
+            LineDrawer.Instance.ClearAllLines();
         }
         
         private void OnEnable()

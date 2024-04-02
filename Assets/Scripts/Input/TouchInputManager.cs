@@ -27,19 +27,15 @@ namespace Input
         private void OnEnable()
         {
             _playerInputAction.Enable();
+            _playerInputAction.Touch.PrimaryContact.started += StartTouchPrimary;
+            _playerInputAction.Touch.PrimaryContact.canceled += EndTouchPrimary;
         }
 
         private void OnDisable()
         {
-            _playerInputAction.Disable();
             _playerInputAction.Touch.PrimaryContact.started -= StartTouchPrimary;
             _playerInputAction.Touch.PrimaryContact.canceled -= EndTouchPrimary;
-        }
-
-        private void Start()
-        {
-            _playerInputAction.Touch.PrimaryContact.started += StartTouchPrimary;
-            _playerInputAction.Touch.PrimaryContact.canceled += EndTouchPrimary;
+            _playerInputAction.Disable();
         }
     
         private void StartTouchPrimary(InputAction.CallbackContext ctx)
@@ -58,6 +54,5 @@ namespace Input
         {
             return Utilities.ScreenToWorld(mainCamera, _playerInputAction.Touch.PrimaryPosition.ReadValue<Vector2>());
         }
-
     }
 }
