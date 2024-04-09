@@ -18,6 +18,7 @@ namespace Dot
         private Vector2 originalScale;
         private bool _isHighlighted = false;
         private SpriteRenderer _spriteRenderer;
+        public bool RequiresReset { get; set; }
 
 
         [SerializeField] private TextMeshPro valueText;

@@ -19,11 +19,13 @@ namespace Managers
         [SerializeField] public float DotMoveDuration = 0.2f;
         
         public Action OnGridInitialized;
+        public Action OnDotsMatched;
         public Dictionary<int, int> GamePointsData;
         
         private Dictionary<int, NumberDot> _gridDots;
         private readonly Dictionary<int, Vector2> _dotPositions = new();
         private List<NumberDot> _highlightedDots = new();
+        private List<NumberDot> _emptyDots = new();
         
         private List<int> _possibleSpawnValues = new();
         private TouchInputManager _touchInputManager;
@@ -99,7 +101,7 @@ namespace Managers
             newDotComponent.SetColor(GetNumberValueColor(value));
             newDotComponent.SetPosition(position);
             _gridDots.Add(position, newDotComponent);
-            
+
             //GamePointsData.Add(position, value);
         }
 
@@ -166,10 +168,43 @@ namespace Managers
                 yield return null;
             }
             _gridDots[dotPosition].transform.position = targetPosition;
-            PopDot(dotPosition);
         }
-        
-        
+
+        private void UpdateDotsData()
+        {
+            //check if any dots need to be reset and do so
+            foreach (var dot in _gridDots.Values)
+            {
+                if (dot.RequiresReset)
+                {
+                    ResetDotValue(dot);
+                    //get array of all empty positions
+                    //call update dot position for each empty position
+                }
+            }
+        }
+        private void UpdateDotPosition(NumberDot dot, int newPosition)
+        {
+            if(dot == null) return;
+            
+            _gridDots.Remove(dot.GetPosition());
+            if(_gridDots.TryAdd(newPosition, dot))
+            {
+                dot.SetPosition(newPosition);
+            }
+            else
+            {
+                Debug.LogWarning("Could not update dot position at: " + newPosition + " for dot: " + dot.name);
+            }
+        }
+
+        private void ResetDotValue(NumberDot dot)
+        {
+            if(dot == null) return;
+            dot.SetValue(GetNextDotValue());
+            dot.SetColor(GetNumberValueColor(dot.GetValue()));
+        }
+
         private IEnumerator HighlightSwipedDots()
         {
             _highlightedDots.Clear();
@@ -231,21 +266,33 @@ namespace Managers
 
         private void TouchInputEnded()
         { 
+            _emptyDots.Clear();
             LineDrawer.Instance.ClearAllLines();
-            if (CheckForMatch())
+            
+            MatchDots();
+        }
+
+        private void MatchDots()
+        {
+            if (!CheckForMatch()) return;
+            Debug.Log("Match Found");
+            
+            NumberDot lastDot = _highlightedDots.Last();
+            for (int i = 0; i < _highlightedDots.Count - 1; i++)
             {
-                //match found
-                Debug.Log("Match Found");
-                for (int i = 0; i < _highlightedDots.Count - 1; i++)
-                {
-                    MoveDotToPosition(_highlightedDots[i].GetPosition(), _highlightedDots.Last().GetPosition());
-                }
+                NumberDot currentDot = _highlightedDots[i];
+                MoveDotToPosition(currentDot.GetPosition(), lastDot.GetPosition());
+                currentDot.RequiresReset = true;
+                _emptyDots.Add(currentDot);
             }
+            //we just finished a match
+            OnDotsMatched?.Invoke();
         }
         
         private void OnEnable()
         {
             OnGridInitialized += InitializeFinished;
+            OnDotsMatched += UpdateDotsData;
             _touchInputManager.OnStartTouchInput += RespondToTouchInput;
             _touchInputManager.OnEndTouchInput += TouchInputEnded;
         }
@@ -253,6 +300,7 @@ namespace Managers
         private void OnDisable()
         {
             OnGridInitialized -= InitializeFinished;
+            OnDotsMatched -= UpdateDotsData;
             _touchInputManager.OnStartTouchInput -= RespondToTouchInput;
             _touchInputManager.OnEndTouchInput -= TouchInputEnded;
         }
