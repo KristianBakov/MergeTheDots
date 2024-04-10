@@ -6,7 +6,6 @@ using Data;
 using Dot;
 using Input;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Utils;
 using Random = UnityEngine.Random;
 
@@ -72,12 +71,16 @@ namespace Managers
 
          private bool IsPositionBelowDotEmpty(int dotPosition)
          {
-             return _gridDots[dotPosition + DataConstants.Instance.GridSize].RequiresReset;
+             return _gridDots.ContainsKey(dotPosition + DataConstants.Instance.GridSize) &&
+                    _gridDots[dotPosition + DataConstants.Instance.GridSize].RequiresReset;
          }
          private int GetPositionBelowDot(int dotPosition)
          {
              //check it is same column 
-             return dotPosition + DataConstants.Instance.GridSize;
+             int newPos = dotPosition + DataConstants.Instance.GridSize;
+             if (GetDotColumn(dotPosition) == GetDotColumn(newPos))
+                 return newPos;
+             return -1;
          }
         
          //called recursively to move the dot to the bottom of the grid
@@ -85,9 +88,9 @@ namespace Managers
           {
               if (IsPositionBelowDotEmpty(dotPosition))
               {
-                  int nextPosition = dotPosition + DataConstants.Instance.GridSize;
-                  GamePointsData[nextPosition] = GamePointsData[dotPosition];
-        
+                  int nextPosition = GetPositionBelowDot(dotPosition);
+                  _gridDots[nextPosition] = _gridDots[dotPosition];
+                    _gridDots[dotPosition].RequiresReset = true;
               }
          }
 
@@ -190,7 +193,11 @@ namespace Managers
             }
             
             if(columnsToUpdate.Count <= 0) return;
-            
+
+            foreach (var columnNum in columnsToUpdate)
+            {
+                GravitateColumn(columnNum);
+            }
 
 
             //get array of all empty positions
@@ -201,12 +208,27 @@ namespace Managers
 
         private void GravitateColumn(int column)
         {
-            
+            //if the difference above a dot is > 5, means we have a space
+            List<NumberDot> columnDots = GetDotsInColumn(column);
+            for (int i = 0; i < columnDots.Count; i++)
+            {
+                NumberDot currentDot = columnDots[i];
+                MoveDotToNextAvailableSlot(currentDot.GetPosition());
+            }
+
         }
 
+        private List<NumberDot> GetDotsInColumn(int column)
+        {
+            return _gridDots.Values.Where(dot => GetDotColumn(dot) == column).ToList();
+        }
         private int GetDotColumn(NumberDot dot)
         {
             return dot.GetPosition() % DataConstants.Instance.GridSize;
+        }
+        private int GetDotColumn(int pos)
+        {
+            return pos % DataConstants.Instance.GridSize;
         }
         private void UpdateDotPosition(NumberDot dot, int newPosition)
         {
