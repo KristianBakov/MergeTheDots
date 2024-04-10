@@ -70,24 +70,26 @@ namespace Managers
             OnGridInitialized?.Invoke();
         }
 
-        // private bool IsPositionBelowDotEmpty(int dotPosition)
-        // {
-        //     if(dotPosition < 0 || dotPosition >= _dotsList.Count) return false;
-        //     Debug.Log("Is it empty" + (GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0).ToString());
-        //     return GamePointsData[dotPosition + DataConstants.Instance.GridSize] == 0;
-        // }
-        //
-        // //called recursively to move the dot to the bottom of the grid
-        // private void MoveDotToNextAvailableSlot(int dotPosition)
-        // {
-        //     if (dotPosition < 0 || dotPosition >= _dotsList.Count) return;
-        //     if (IsPositionBelowDotEmpty(dotPosition))
-        //     {
-        //         int nextPosition = dotPosition + DataConstants.Instance.GridSize;
-        //         GamePointsData[nextPosition] = GamePointsData[dotPosition];
-        //
-        //     }
-        //}
+         private bool IsPositionBelowDotEmpty(int dotPosition)
+         {
+             return _gridDots[dotPosition + DataConstants.Instance.GridSize].RequiresReset;
+         }
+         private int GetPositionBelowDot(int dotPosition)
+         {
+             //check it is same column 
+             return dotPosition + DataConstants.Instance.GridSize;
+         }
+        
+         //called recursively to move the dot to the bottom of the grid
+          private void MoveDotToNextAvailableSlot(int dotPosition)
+          {
+              if (IsPositionBelowDotEmpty(dotPosition))
+              {
+                  int nextPosition = dotPosition + DataConstants.Instance.GridSize;
+                  GamePointsData[nextPosition] = GamePointsData[dotPosition];
+        
+              }
+         }
 
         public void SpawnDotAtPosition(int position)
         {
@@ -173,15 +175,38 @@ namespace Managers
         private void UpdateDotsData()
         {
             //check if any dots need to be reset and do so
-            foreach (var dot in _gridDots.Values)
+            // foreach (var dot in _gridDots.Values)
+            // {
+            //     if (dot.RequiresReset)
+            //     {
+            //         ResetDotValue(dot);
+            //     }
+            // }
+            
+            List<int> columnsToUpdate = new();
+            foreach (var dot in _emptyDots.Where(dot => !columnsToUpdate.Contains(GetDotColumn(dot))))
             {
-                if (dot.RequiresReset)
-                {
-                    ResetDotValue(dot);
-                    //get array of all empty positions
-                    //call update dot position for each empty position
-                }
+                columnsToUpdate.Add(GetDotColumn(dot));
             }
+            
+            if(columnsToUpdate.Count <= 0) return;
+            
+
+
+            //get array of all empty positions
+            //check if there are any dots above the empty position
+            //if there are, move them down
+            //if there are not, spawn a new dot
+        }
+
+        private void GravitateColumn(int column)
+        {
+            
+        }
+
+        private int GetDotColumn(NumberDot dot)
+        {
+            return dot.GetPosition() % DataConstants.Instance.GridSize;
         }
         private void UpdateDotPosition(NumberDot dot, int newPosition)
         {
@@ -203,6 +228,7 @@ namespace Managers
             if(dot == null) return;
             dot.SetValue(GetNextDotValue());
             dot.SetColor(GetNumberValueColor(dot.GetValue()));
+            dot.RequiresReset = false;
         }
 
         private IEnumerator HighlightSwipedDots()
