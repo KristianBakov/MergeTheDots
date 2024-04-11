@@ -22,8 +22,6 @@ namespace Managers
             lineRenderer.startWidth = lineWidth;
             lineRenderer.endWidth = lineWidth;
             lineRenderer.positionCount = 2;
-            Debug.Log("PointA: " + pointA);
-            Debug.Log("PointB: " + pointB);
             lineRenderer.SetPosition(0, pointA);
             lineRenderer.SetPosition(1, pointB);
             lineRenderer.material = lineMaterial;
