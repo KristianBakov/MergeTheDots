@@ -83,18 +83,18 @@ namespace Managers
              return -1;
          }
         
-         //called recursively to move the dot to the bottom of the grid
-          private void MoveDotToNextAvailableSlot(int dotPosition)
-          {
-              if (IsPositionBelowDotEmpty(dotPosition))
-              {
-                  int nextPosition = GetPositionBelowDot(dotPosition);
-                  _gridDots[nextPosition] = _gridDots[dotPosition];
-                    _gridDots[dotPosition].RequiresReset = true;
-              }
+         //called recursively to move the dot to the bottom of the column
+         private void MoveDotToNextAvailableSlot(int dotPosition)
+         {
+             if (!IsPositionBelowDotEmpty(dotPosition)) return;
+
+             int nextPosition = GetPositionBelowDot(dotPosition);
+             _gridDots[nextPosition] = _gridDots[dotPosition];
+             _gridDots[dotPosition].RequiresReset = true;
+             MoveDotToNextAvailableSlot(dotPosition);
          }
 
-        public void SpawnDotAtPosition(int position)
+         public void SpawnDotAtPosition(int position)
         {
             if(_gridDots.ContainsKey(position)) return;
             
