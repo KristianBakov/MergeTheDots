@@ -110,32 +110,19 @@ namespace Managers
             //GamePointsData.Add(position, value);
         }
 
-        private void PopDot(int dotPosition)
-        {
-            //GamePointsData[dotPosition] = 0;
-            
-            //whatever dot is on top falls down, whatever is left empty above that just spawns in a new dot
-            
-            if(dotPosition > DataConstants.Instance.GridSize)
-            {
-                //first row, just spawn in
-                Destroy(_gridDots[dotPosition].gameObject);
-                _gridDots.Remove(dotPosition);
-                SpawnDotAtPosition(dotPosition);
-                return;
-            }
-            
-            
-            //check is any dot(s) above it
-            
-            //if there is a dot above it, move it down
-            
-            //if there is no dot above it, but there is empty space, spawn a new dot
-            
+         private void PopDot(int dotPosition)
+         {
+             Destroy(_gridDots[dotPosition].gameObject);
+             _gridDots.Remove(dotPosition);
+         }
+         
+         private void PopAndReplaceDot(int dotPosition)
+         {
+             PopDot(dotPosition);
+             SpawnDotAtPosition(dotPosition);
+         }
 
-        }
-
-        private int GetNextDotValue()
+         private int GetNextDotValue()
         {
             if (_possibleSpawnValues.Count == 0)
             {
@@ -155,13 +142,7 @@ namespace Managers
             }
         }
 
-        public void MoveDotToPosition(int dotPosition, int newDotPosition)
-        {
-            //lerp the dot to the new position
-            StartCoroutine(MoveDotRoutine(dotPosition, newDotPosition));
-        }
-        
-        private IEnumerator MoveDotRoutine(int dotPosition, int newDotPosition)
+        private IEnumerator MoveDotToPosition(int dotPosition, int newDotPosition)
         {
             float elapsedTime = 0;
             Vector2 initialPosition = _gridDots[dotPosition].transform.position;
@@ -186,11 +167,14 @@ namespace Managers
             //     }
             // }
             
+            //pop our empty dots
+
             List<int> columnsToUpdate = new();
             foreach (var dot in _emptyDots.Where(dot => !columnsToUpdate.Contains(GetDotColumn(dot))))
             {
                 columnsToUpdate.Add(GetDotColumn(dot));
             }
+            _emptyDots.ForEach(dot => PopDot(dot.GetPosition()));
             
             if(columnsToUpdate.Count <= 0) return;
 
@@ -198,6 +182,8 @@ namespace Managers
             {
                 GravitateColumn(columnNum);
             }
+            
+            //spawn dots at empty positions
 
 
             //get array of all empty positions
@@ -325,15 +311,28 @@ namespace Managers
             if (!CheckForMatch()) return;
             Debug.Log("Match Found");
             
+            List<Coroutine> movements = new();
             NumberDot lastDot = _highlightedDots.Last();
             for (int i = 0; i < _highlightedDots.Count - 1; i++)
             {
                 NumberDot currentDot = _highlightedDots[i];
-                MoveDotToPosition(currentDot.GetPosition(), lastDot.GetPosition());
                 currentDot.RequiresReset = true;
                 _emptyDots.Add(currentDot);
+                movements.Add(StartCoroutine(MoveDotToPosition(currentDot.GetPosition(),
+                    lastDot.GetPosition())));
             }
-            //we just finished a match
+
+            StartCoroutine(WaitForMovements(movements));
+        }
+        
+        private IEnumerator WaitForMovements(List<Coroutine> movements)
+        {
+            foreach (Coroutine move in movements)
+            {
+                yield return move;  // This waits for each coroutine to complete
+            }
+
+            // All movements are done, now fire the event
             OnDotsMatched?.Invoke();
         }
         
