@@ -80,7 +80,7 @@ namespace Managers
              int newPos = dotPosition + DataConstants.Instance.GridSize;
              if (GetDotColumn(dotPosition) == GetDotColumn(newPos))
                  return newPos;
-             return -1;
+             return dotPosition;
          }
          
          private int GetLastEmptySlotInColumn(int dotPosition)
@@ -88,7 +88,7 @@ namespace Managers
              int newPos = dotPosition;
              if (IsPositionBelowDotEmpty(newPos))
              {
-                 newPos += DataConstants.Instance.GridSize;
+                 newPos = GetPositionBelowDot(newPos);
                  GetLastEmptySlotInColumn(newPos);
              }
              return newPos;
@@ -124,12 +124,6 @@ namespace Managers
              Destroy(_gridDots[dotPosition].gameObject);
              _gridDots.Remove(dotPosition);
          }
-         
-         private void PopAndReplaceDot(int dotPosition)
-         {
-             PopDot(dotPosition);
-             SpawnDotAtPosition(dotPosition);
-         }
 
          private int GetNextDotValue()
         {
@@ -153,6 +147,7 @@ namespace Managers
 
         private IEnumerator MoveDotToPosition(int dotPosition, int newDotPosition)
         {
+            if(!_gridDots.ContainsKey(dotPosition)) yield break;
             float elapsedTime = 0;
             Vector2 initialPosition = _gridDots[dotPosition].transform.position;
             Vector2 targetPosition = _gridDots[newDotPosition].transform.position;
