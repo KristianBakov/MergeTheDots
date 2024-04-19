@@ -121,8 +121,21 @@ namespace Managers
          private void PopDot(int dotPosition)
          {
              if(!_gridDots.ContainsKey(dotPosition)) return;
-             Destroy(_gridDots[dotPosition].gameObject);
-             _gridDots.Remove(dotPosition);
+             DeactivateDot(dotPosition);
+             //_gridDots.Remove(dotPosition);
+         }
+         
+         private void DeactivateDot(int dotPosition)
+         {
+             if(!_gridDots.ContainsKey(dotPosition)) return;
+             _gridDots[dotPosition].gameObject.SetActive(false);
+         }
+
+         private void ActivateDot(int dotPosition, int newDotValue)
+         {
+             _gridDots[dotPosition].SetValue(newDotValue);
+             _gridDots[dotPosition].SetColor(GetNumberValueColor(newDotValue));
+             _gridDots[dotPosition].gameObject.SetActive(true);
          }
 
          private int GetNextDotValue()
